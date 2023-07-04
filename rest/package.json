@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "echo 'No e2e tests implemented yet.'"
+    "test:e2e": "echo 'No e2e tests implemented yet.'",
+    "protoc": "protoc --plugin=\"./node_modules/.bin/protoc-gen-ts_proto.cmd\" -I=./src/proto --ts_proto_out=./src/interfaces ./src/proto/hero.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb --ts_proto_opt=addGrpcMetadata=true --ts_proto_opt=addNestjsRestParameter=true"
   },
   "dependencies": {
     "@grpc/grpc-js": "1.4.2",
@@ -38,18 +39,19 @@
     "@types/node": "16.11.6",
     "@types/supertest": "2.0.11",
     "@types/ws": "7.4.7",
+    "@typescript-eslint/eslint-plugin": "4.33.0",
+    "@typescript-eslint/parser": "4.33.0",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-import": "2.25.2",
     "jest": "27.3.1",
     "prettier": "2.4.1",
     "supertest": "6.1.6",
     "ts-jest": "27.0.7",
     "ts-loader": "9.2.6",
     "ts-node": "10.4.0",
+    "ts-proto": "^1.150.1",
     "tsconfig-paths": "3.11.0",
-    "@typescript-eslint/eslint-plugin": "4.33.0",
-    "@typescript-eslint/parser": "4.33.0",
-    "eslint": "7.32.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-plugin-import": "2.25.2",
     "typescript": "4.3.5"
   }
 }

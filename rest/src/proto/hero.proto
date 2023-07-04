@@ -1,24 +1,24 @@
-import "google/protobuf/empty.proto";
-
 syntax = "proto3";
 
 package hero;
 
 service HeroService {
-  rpc FindOne (HeroById) returns (Hero);
-  rpc FindAll (google.protobuf.Empty) returns (HeroArray);
-  rpc FindMany (stream HeroById) returns (stream Hero);
+  rpc FindOne (HeroByIdReq) returns (Hero);
+  rpc FindAll (EmptyReq) returns (Heroes);
+  rpc FindMany (stream HeroByIdReq) returns (stream Hero);
 }
 
-message HeroById {
+message HeroByIdReq {
   int32 id = 1;
 }
+
+message EmptyReq {}
 
 message Hero {
   int32 id = 1;
   string name = 2;
 }
 
-message HeroArray {
-  repeated Hero data = 1;
+message Heroes {
+  repeated Hero heroes = 1;
 }

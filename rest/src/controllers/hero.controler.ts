@@ -1,42 +1,35 @@
-import { Controller, Get, Inject, OnModuleInit, Param, Query } from '@nestjs/common';
-import { Observable, ReplaySubject, toArray } from 'rxjs';
-import { Hero } from 'models/db';
-import { GetHeroByIdReq } from 'models/req';
+import { Metadata } from '@grpc/grpc-js';
 import { ClientGrpc } from '@nestjs/microservices';
-
-interface HeroService {
-  findOne(data: GetHeroByIdReq): Promise<Hero>;
-  findAll(data: any): Promise<{ data: Hero[] }>;
-  findMany(upstream: Observable<GetHeroByIdReq>): Observable<Hero>;
-}
+import { lastValueFrom, Observable, ReplaySubject, toArray } from 'rxjs';
+import { Controller, Get, Inject, OnModuleInit, Param, Query } from '@nestjs/common';
+import { Hero, HeroByIdReq, HeroServiceClient, HERO_SERVICE_NAME } from 'interfaces';
 
 @Controller('hero')
 export class HeroController implements OnModuleInit {
-  private heroService: HeroService;
+  private heroService: HeroServiceClient;
   constructor(@Inject('HERO_PACKAGE') private readonly client: ClientGrpc) {}
 
   onModuleInit() {
-    this.heroService = this.client.getService<HeroService>('HeroService');
+    this.heroService = this.client.getService<HeroServiceClient>(HERO_SERVICE_NAME);
   }
 
   @Get()
-  getAll(@Query('ids') ids?: string) {
+  async getAll(@Query('ids') ids?: string) {
     if (ids) {
       const idsArr = ids.split(',');
-      const ids$ = new ReplaySubject<GetHeroByIdReq>();
+      const ids$ = new ReplaySubject<HeroByIdReq>();
       for (const id of idsArr) {
         ids$.next({ id: +id });
       }
       ids$.complete();
-
-      const stream = this.heroService.findMany(ids$.asObservable());
+      const stream = this.heroService.findMany(ids$.asObservable(), new Metadata());
       return stream.pipe(toArray());
     }
-    return this.heroService.findAll({});
+    return (await lastValueFrom(this.heroService.findAll({}, new Metadata()))).heroes;
   }
 
   @Get(':id')
-  getById(@Param('id') id: string) {
-    return this.heroService.findOne({ id: +id });
+  getById(@Param('id') id: string): Observable<Hero> {
+    return this.heroService.findOne({ id: +id }, new Metadata());
   }
 }
