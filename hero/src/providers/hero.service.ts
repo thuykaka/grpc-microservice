@@ -1,45 +1,49 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Interfaces } from 'common-proto';
 import { Observable, Subject } from 'rxjs';
+import { GetAllHeroRes, GetHeroByIdReq, GetHeroByIdRes, Hero } from 'common-proto/dist/interfaces/hero.pb';
 
 @Injectable()
 export class HeroService {
   private logger = new Logger(HeroService.name);
-  private readonly items: Interfaces.heropb.Hero[] = [
+  private readonly items: Hero[] = [
     { id: 1, name: 'John' },
-    { id: 2, name: 'Doe2' },
-    { id: 3, name: 'Doe3' },
+    { id: 2, name: 'Doe' },
+    { id: 3, name: 'Max' },
   ];
 
-  findOne(req: Interfaces.heropb.HeroByIdReq): Promise<Interfaces.heropb.Hero> | Observable<Interfaces.heropb.Hero> | Interfaces.heropb.Hero {
+  findOne(req: GetHeroByIdReq): GetHeroByIdRes {
     this.logger.log(`findOne req: ${JSON.stringify(req)}`);
-    const res = this.items.find(({ id }) => id === req.id);
-    this.logger.log(`findOne res: ${JSON.stringify(res)}`);
-    return res;
-  }
+    const hero = this.items.find(({ id }) => id === req.id);
+    this.logger.log(`findOne res: ${JSON.stringify(hero)}`);
 
-  findAll(): Promise<Interfaces.heropb.Heroes> | Observable<Interfaces.heropb.Heroes> | Interfaces.heropb.Heroes {
-    this.logger.log(`findAll req: {}`);
-    const res = this.items;
-    this.logger.log(`findAll res: ${JSON.stringify(res)}`);
-    return { heroes: res };
-  }
+    if (!hero) {
+      return {
+        status: 'NOT_FOUND',
+        error: [`not found hero-${req.id}`],
+        data: null,
+      };
+    }
 
-  findMany(req$: Observable<Interfaces.heropb.HeroByIdReq>): Observable<Interfaces.heropb.Hero> {
-    const hero$ = new Subject<Interfaces.heropb.Hero>();
-
-    const onNext = (heroById: Interfaces.heropb.HeroByIdReq) => {
-      const item = this.findOne(heroById);
-      hero$.next(item as Interfaces.heropb.Hero);
+    return {
+      status: 'OK',
+      error: null,
+      data: hero,
     };
+  }
 
-    const onComplete = () => hero$.complete();
+  findAll(): GetAllHeroRes {
+    this.logger.log(`findAll req: {}`);
+    const heroes = this.items;
+    this.logger.log(`findAll res: ${JSON.stringify(heroes)}`);
+    return {
+      status: 'OK',
+      error: null,
+      data: heroes,
+    };
+  }
 
-    req$.subscribe({
-      next: onNext,
-      complete: onComplete,
-    });
-
+  findMany(req$: Observable<GetHeroByIdReq>): Observable<GetHeroByIdRes> {
+    const hero$ = new Subject<GetHeroByIdRes>();
     return hero$.asObservable();
   }
 }

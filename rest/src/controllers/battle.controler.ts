@@ -1,22 +1,20 @@
 import { Metadata } from '@grpc/grpc-js';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Body, Controller, Get, Inject, OnModuleInit, Param, Post } from '@nestjs/common';
-import { Interfaces } from 'common-proto';
-import { lastValueFrom } from 'rxjs';
+import { BattleServiceClient, BATTLE_SERVICE_NAME } from 'common-proto/dist/interfaces/battle.pb';
 
 @Controller('battle')
 export class BattleController implements OnModuleInit {
-  private battleService: Interfaces.battlepb.BattleServiceClient;
+  private battleService: BattleServiceClient;
   constructor(@Inject('BATTLE_PACKAGE') private readonly client: ClientGrpc) {}
 
   onModuleInit() {
-    this.battleService = this.client.getService<Interfaces.battlepb.BattleServiceClient>(Interfaces.battlepb.BATTLE_SERVICE_NAME);
+    this.battleService = this.client.getService<BattleServiceClient>(BATTLE_SERVICE_NAME);
   }
 
   @Get()
   async getAll() {
-    const data = await lastValueFrom(this.battleService.findAll({}, new Metadata()));
-    return data.data;
+    return this.battleService.findAll({}, new Metadata());
   }
 
   @Get(':id')

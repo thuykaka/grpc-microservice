@@ -3,26 +3,34 @@ syntax = "proto3";
 package battle;
 
 service BattleService {
-  rpc FindOne (FindBattleByIdReq) returns (FindBattleByIdRes);
-  rpc FindAll (EmptyReq) returns (FindAllBattleRes);
+  rpc FindOne (GetBattleByIdReq) returns (GetBattleByIdRes);
+  rpc FindAll (GetAllBattleReq) returns (GetAllBattleRes);
   rpc CreateBattle (CreateBattleReq) returns(CreateBattleRes);
 }
 
-message FindBattleByIdReq {
-  int32 id = 1;
-}
-
-message FindBattleByIdRes {
+message Battle {
   int32 id = 1;
   string name = 2;
   repeated int32 heroIds = 3;
   int32 winner = 4;
 }
 
-message EmptyReq {}
+message GetBattleByIdReq {
+  int32 id = 1;
+}
 
-message FindAllBattleRes {
-  repeated FindBattleByIdRes data = 1;
+message GetBattleByIdRes {
+  string status = 1;
+  repeated string error = 2;
+  Battle data = 3;
+}
+
+message GetAllBattleReq {}
+
+message GetAllBattleRes {
+  string status = 1;
+  repeated string error = 2;
+  repeated Battle data = 3;
 }
 
 message CreateBattleReq {
@@ -32,7 +40,7 @@ message CreateBattleReq {
 }
 
 message CreateBattleRes {
-    int32 status = 1;
-    string error = 2;
-    int32 id = 3;
+    string status = 1;
+    repeated string error = 2;
+    Battle data = 3;
 }

@@ -5,22 +5,30 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "battle";
 
-export interface FindBattleByIdReq {
-  id: number;
-}
-
-export interface FindBattleByIdRes {
+export interface Battle {
   id: number;
   name: string;
   heroIds: number[];
   winner: number;
 }
 
-export interface EmptyReq {
+export interface GetBattleByIdReq {
+  id: number;
 }
 
-export interface FindAllBattleRes {
-  data: FindBattleByIdRes[];
+export interface GetBattleByIdRes {
+  status: string;
+  error: string[];
+  data: Battle | undefined;
+}
+
+export interface GetAllBattleReq {
+}
+
+export interface GetAllBattleRes {
+  status: string;
+  error: string[];
+  data: Battle[];
 }
 
 export interface CreateBattleReq {
@@ -30,33 +38,33 @@ export interface CreateBattleReq {
 }
 
 export interface CreateBattleRes {
-  status: number;
-  error: string;
-  id: number;
+  status: string;
+  error: string[];
+  data: Battle | undefined;
 }
 
 export const BATTLE_PACKAGE_NAME = "battle";
 
 export interface BattleServiceClient {
-  findOne(request: FindBattleByIdReq, metadata: Metadata, ...rest: any): Observable<FindBattleByIdRes>;
+  findOne(request: GetBattleByIdReq, metadata: Metadata, ...rest: any): Observable<GetBattleByIdRes>;
 
-  findAll(request: EmptyReq, metadata: Metadata, ...rest: any): Observable<FindAllBattleRes>;
+  findAll(request: GetAllBattleReq, metadata: Metadata, ...rest: any): Observable<GetAllBattleRes>;
 
   createBattle(request: CreateBattleReq, metadata: Metadata, ...rest: any): Observable<CreateBattleRes>;
 }
 
 export interface BattleServiceController {
   findOne(
-    request: FindBattleByIdReq,
+    request: GetBattleByIdReq,
     metadata: Metadata,
     ...rest: any
-  ): Promise<FindBattleByIdRes> | Observable<FindBattleByIdRes> | FindBattleByIdRes;
+  ): Promise<GetBattleByIdRes> | Observable<GetBattleByIdRes> | GetBattleByIdRes;
 
   findAll(
-    request: EmptyReq,
+    request: GetAllBattleReq,
     metadata: Metadata,
     ...rest: any
-  ): Promise<FindAllBattleRes> | Observable<FindAllBattleRes> | FindAllBattleRes;
+  ): Promise<GetAllBattleRes> | Observable<GetAllBattleRes> | GetAllBattleRes;
 
   createBattle(
     request: CreateBattleReq,

@@ -1,15 +1,16 @@
 import { Metadata } from '@grpc/grpc-js';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Interfaces } from 'common-proto';
-import { lastValueFrom, Observable } from 'rxjs';
+import { Battle, CreateBattleReq, CreateBattleRes, GetAllBattleReq, GetAllBattleRes, GetBattleByIdReq, GetBattleByIdRes } from 'common-proto/dist/interfaces/battle.pb';
+import { HeroServiceClient, HERO_SERVICE_NAME } from 'common-proto/dist/interfaces/hero.pb';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class BattleService implements OnModuleInit {
-  private heroService: Interfaces.heropb.HeroServiceClient;
+  private heroService: HeroServiceClient;
   private logger = new Logger(BattleService.name);
 
-  private readonly items: Interfaces.battlepb.FindBattleByIdRes[] = [
+  private readonly items: Battle[] = [
     { id: 1, name: 'battle-1', heroIds: [1, 2], winner: 1 },
     { id: 2, name: 'battle-2', heroIds: [1, 2], winner: 2 },
   ];
@@ -17,57 +18,75 @@ export class BattleService implements OnModuleInit {
   constructor(@Inject('HERO_PACKAGE') private readonly heroClient: ClientGrpc) {}
 
   onModuleInit() {
-    this.heroService = this.heroClient.getService<Interfaces.heropb.HeroServiceClient>(Interfaces.heropb.HERO_SERVICE_NAME);
+    this.heroService = this.heroClient.getService<HeroServiceClient>(HERO_SERVICE_NAME);
   }
 
-  findOne(
-    req: Interfaces.battlepb.FindBattleByIdReq
-  ): Promise<Interfaces.battlepb.FindBattleByIdRes> | Observable<Interfaces.battlepb.FindBattleByIdRes> | Interfaces.battlepb.FindBattleByIdRes {
+  findOne(req: GetBattleByIdReq): GetBattleByIdRes {
     this.logger.log(`findOne req: ${JSON.stringify(req)}`);
-    const res = this.items.find(({ id }) => id === req.id);
-    this.logger.log(`findOne res: ${JSON.stringify(res)}`);
-    return res;
+    const battle = this.items.find(({ id }) => id === req.id);
+    this.logger.log(`findOne res: ${JSON.stringify(battle)}`);
+    if (!battle) {
+      return {
+        status: 'NOT_FOUND',
+        error: [`not found battle-${req.id}`],
+        data: null,
+      };
+    }
+
+    return {
+      status: 'OK',
+      error: null,
+      data: battle,
+    };
   }
 
-  findAll(): Promise<Interfaces.battlepb.FindAllBattleRes> | Observable<Interfaces.battlepb.FindAllBattleRes> | Interfaces.battlepb.FindAllBattleRes {
+  findAll(): GetAllBattleRes {
     this.logger.log(`findAll req: {}`);
-    const res = this.items;
-    this.logger.log(`findAll res: ${JSON.stringify(res)}`);
-    return { data: res };
+    const battles = this.items;
+    this.logger.log(`findAll res: ${JSON.stringify(battles)}`);
+    return {
+      status: 'OK',
+      error: null,
+      data: battles,
+    };
   }
 
-  async createBattle(req: Interfaces.battlepb.CreateBattleReq, metadata: Metadata): Promise<Interfaces.battlepb.CreateBattleRes> {
+  async createBattle(req: CreateBattleReq, metadata: Metadata): Promise<CreateBattleRes> {
     this.logger.log(`createBattle req: ${JSON.stringify(req)}, metadata: ${JSON.stringify(metadata)}`);
 
     if (this.items.find(i => i.id === req.id)) {
       return {
-        status: 0,
-        error: 'CONFLICT',
-        id: null,
+        status: 'CONFLICT',
+        error: ['confict'],
+        data: null,
       };
     }
 
     for (let heroId of req.heroIds) {
-      let hero;
-      try {
-        hero = await lastValueFrom(this.heroService.findOne({ id: +heroId }, new Metadata()));
-      } catch (err) {}
-      this.logger.log(`hero: ${JSON.stringify(hero)}`);
-      if (!hero) {
+      const hero = await lastValueFrom(this.heroService.findOne({ id: +heroId }, new Metadata()));
+
+      if (!hero.data) {
         return {
-          status: 0,
-          error: `NOT EXIST HERO WITH ID: ${heroId}`,
-          id: null,
+          status: 'NOT_EXIST',
+          error: [`NOT EXIST HERO WITH ID: ${heroId}`],
+          data: null,
         };
       }
     }
-    
-    const item: Interfaces.battlepb.CreateBattleRes = {
-      status: 1,
-      error: null,
-      id: 3,
+
+    const battle = {
+      ...req,
+      winner: 0,
     };
-    this.items.push({ ...req, winner: 0 });
-    return item;
+
+    const res: CreateBattleRes = {
+      status: 'OK',
+      error: null,
+      data: battle,
+    };
+
+    this.items.push(battle);
+
+    return res;
   }
 }

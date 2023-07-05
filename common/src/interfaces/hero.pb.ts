@@ -5,38 +5,54 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "hero";
 
-export interface HeroByIdReq {
-  id: number;
-}
-
-export interface EmptyReq {
-}
-
 export interface Hero {
   id: number;
   name: string;
 }
 
-export interface Heroes {
-  heroes: Hero[];
+export interface GetHeroByIdReq {
+  id: number;
+}
+
+export interface GetHeroByIdRes {
+  status: string;
+  error: string[];
+  data: Hero | undefined;
+}
+
+export interface GetAllHeroReq {
+}
+
+export interface GetAllHeroRes {
+  status: string;
+  error: string[];
+  data: Hero[];
 }
 
 export const HERO_PACKAGE_NAME = "hero";
 
 export interface HeroServiceClient {
-  findOne(request: HeroByIdReq, metadata: Metadata, ...rest: any): Observable<Hero>;
+  findOne(request: GetHeroByIdReq, metadata: Metadata, ...rest: any): Observable<GetHeroByIdRes>;
 
-  findAll(request: EmptyReq, metadata: Metadata, ...rest: any): Observable<Heroes>;
+  findAll(request: GetAllHeroReq, metadata: Metadata, ...rest: any): Observable<GetAllHeroRes>;
 
-  findMany(request: Observable<HeroByIdReq>, metadata: Metadata, ...rest: any): Observable<Hero>;
+  findMany(request: Observable<GetHeroByIdReq>, metadata: Metadata, ...rest: any): Observable<GetHeroByIdRes>;
 }
 
 export interface HeroServiceController {
-  findOne(request: HeroByIdReq, metadata: Metadata, ...rest: any): Promise<Hero> | Observable<Hero> | Hero;
+  findOne(
+    request: GetHeroByIdReq,
+    metadata: Metadata,
+    ...rest: any
+  ): Promise<GetHeroByIdRes> | Observable<GetHeroByIdRes> | GetHeroByIdRes;
 
-  findAll(request: EmptyReq, metadata: Metadata, ...rest: any): Promise<Heroes> | Observable<Heroes> | Heroes;
+  findAll(
+    request: GetAllHeroReq,
+    metadata: Metadata,
+    ...rest: any
+  ): Promise<GetAllHeroRes> | Observable<GetAllHeroRes> | GetAllHeroRes;
 
-  findMany(request: Observable<HeroByIdReq>, metadata: Metadata, ...rest: any): Observable<Hero>;
+  findMany(request: Observable<GetHeroByIdReq>, metadata: Metadata, ...rest: any): Observable<GetHeroByIdRes>;
 }
 
 export function HeroServiceControllerMethods() {
