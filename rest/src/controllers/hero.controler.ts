@@ -2,22 +2,22 @@ import { Metadata } from '@grpc/grpc-js';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom, Observable, ReplaySubject, toArray } from 'rxjs';
 import { Controller, Get, Inject, OnModuleInit, Param, Query } from '@nestjs/common';
-import { Hero, HeroByIdReq, HeroServiceClient, HERO_SERVICE_NAME } from 'interfaces';
+import { Interfaces } from 'common-proto';
 
 @Controller('hero')
 export class HeroController implements OnModuleInit {
-  private heroService: HeroServiceClient;
+  private heroService: Interfaces.HeroServiceClient;
   constructor(@Inject('HERO_PACKAGE') private readonly client: ClientGrpc) {}
 
   onModuleInit() {
-    this.heroService = this.client.getService<HeroServiceClient>(HERO_SERVICE_NAME);
+    this.heroService = this.client.getService<Interfaces.HeroServiceClient>(Interfaces.HERO_SERVICE_NAME);
   }
 
   @Get()
   async getAll(@Query('ids') ids?: string) {
     if (ids) {
       const idsArr = ids.split(',');
-      const ids$ = new ReplaySubject<HeroByIdReq>();
+      const ids$ = new ReplaySubject<Interfaces.HeroByIdReq>();
       for (const id of idsArr) {
         ids$.next({ id: +id });
       }
@@ -29,7 +29,10 @@ export class HeroController implements OnModuleInit {
   }
 
   @Get(':id')
-  getById(@Param('id') id: string): Observable<Hero> {
-    return this.heroService.findOne({ id: +id }, new Metadata());
+  getById(@Param('id') id: string): Observable<Interfaces.Hero> {
+    const metadata = new Metadata();
+    metadata.add('Set-Cookie', 'yummy_cookie=choco');
+    metadata.add('x', 'y');
+    return this.heroService.findOne({ id: +id }, metadata);
   }
 }

@@ -1,26 +1,28 @@
 import { Observable } from 'rxjs';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { HeroService } from 'providers';
-import { EmptyReq, HeroByIdReq, HeroServiceController, HERO_SERVICE_NAME } from 'interfaces';
+import { Interfaces } from 'common-proto';
 
 @Controller()
-export class HeroController implements HeroServiceController {
+export class HeroController implements Interfaces.HeroServiceController {
+  private logger = new Logger(HeroController.name);
   constructor(private heroService: HeroService) {}
 
-  @GrpcMethod(HERO_SERVICE_NAME)
-  findAll(req: EmptyReq) {
+  @GrpcMethod(Interfaces.HERO_SERVICE_NAME)
+  findAll(_: Interfaces.EmptyReq) {
     return this.heroService.findAll();
   }
 
-  @GrpcMethod(HERO_SERVICE_NAME)
-  findOne(req: HeroByIdReq, metadata: Metadata, call: ServerUnaryCall<any, any>) {
+  @GrpcMethod(Interfaces.HERO_SERVICE_NAME)
+  findOne(req: Interfaces.HeroByIdReq, metadata: Metadata, call: ServerUnaryCall<any, any>) {
+    this.logger.log(`findOne, metadata: ${JSON.stringify(metadata)}`);
     return this.heroService.findOne(req);
   }
 
-  @GrpcStreamMethod(HERO_SERVICE_NAME)
-  findMany(req$: Observable<HeroByIdReq>) {
+  @GrpcStreamMethod(Interfaces.HERO_SERVICE_NAME)
+  findMany(req$: Observable<Interfaces.HeroByIdReq>) {
     return this.heroService.findMany(req$);
   }
 }
