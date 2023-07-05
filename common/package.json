@@ -5,8 +5,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "protoc": "yarn run protoc:hero && echo \"OK\"",
+    "protoc": "yarn run protoc:hero && yarn run protoc:battle && echo \"OK\"",
     "protoc:hero": "protoc --plugin=\"./node_modules/.bin/protoc-gen-ts_proto.cmd\" -I=./src/proto --ts_proto_out=./src/interfaces ./src/proto/hero.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb --ts_proto_opt=addGrpcMetadata=true --ts_proto_opt=addNestjsRestParameter=true",
+    "protoc:battle": "protoc --plugin=\"./node_modules/.bin/protoc-gen-ts_proto.cmd\" -I=./src/proto --ts_proto_out=./src/interfaces ./src/proto/battle.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb --ts_proto_opt=addGrpcMetadata=true --ts_proto_opt=addNestjsRestParameter=true",
     "prebuild": "rimraf dist",
     "build": "yarn protoc && nest build"
   },

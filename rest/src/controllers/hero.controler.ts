@@ -6,18 +6,18 @@ import { Interfaces } from 'common-proto';
 
 @Controller('hero')
 export class HeroController implements OnModuleInit {
-  private heroService: Interfaces.HeroServiceClient;
+  private heroService: Interfaces.heropb.HeroServiceClient;
   constructor(@Inject('HERO_PACKAGE') private readonly client: ClientGrpc) {}
 
   onModuleInit() {
-    this.heroService = this.client.getService<Interfaces.HeroServiceClient>(Interfaces.HERO_SERVICE_NAME);
+    this.heroService = this.client.getService<Interfaces.heropb.HeroServiceClient>(Interfaces.heropb.HERO_SERVICE_NAME);
   }
 
   @Get()
   async getAll(@Query('ids') ids?: string) {
     if (ids) {
       const idsArr = ids.split(',');
-      const ids$ = new ReplaySubject<Interfaces.HeroByIdReq>();
+      const ids$ = new ReplaySubject<Interfaces.heropb.HeroByIdReq>();
       for (const id of idsArr) {
         ids$.next({ id: +id });
       }
@@ -29,7 +29,7 @@ export class HeroController implements OnModuleInit {
   }
 
   @Get(':id')
-  getById(@Param('id') id: string): Observable<Interfaces.Hero> {
+  getById(@Param('id') id: string): Observable<Interfaces.heropb.Hero> {
     const metadata = new Metadata();
     metadata.add('Set-Cookie', 'yummy_cookie=choco');
     metadata.add('x', 'y');

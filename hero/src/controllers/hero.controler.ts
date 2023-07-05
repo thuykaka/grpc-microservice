@@ -6,23 +6,23 @@ import { HeroService } from 'providers';
 import { Interfaces } from 'common-proto';
 
 @Controller()
-export class HeroController implements Interfaces.HeroServiceController {
+export class HeroController implements Interfaces.heropb.HeroServiceController {
   private logger = new Logger(HeroController.name);
   constructor(private heroService: HeroService) {}
 
-  @GrpcMethod(Interfaces.HERO_SERVICE_NAME)
-  findAll(_: Interfaces.EmptyReq) {
+  @GrpcMethod(Interfaces.heropb.HERO_SERVICE_NAME)
+  findAll(_: Interfaces.heropb.EmptyReq) {
     return this.heroService.findAll();
   }
 
-  @GrpcMethod(Interfaces.HERO_SERVICE_NAME)
-  findOne(req: Interfaces.HeroByIdReq, metadata: Metadata, call: ServerUnaryCall<any, any>) {
+  @GrpcMethod(Interfaces.heropb.HERO_SERVICE_NAME)
+  findOne(req: Interfaces.heropb.HeroByIdReq, metadata: Metadata, call: ServerUnaryCall<any, any>) {
     this.logger.log(`findOne, metadata: ${JSON.stringify(metadata)}`);
     return this.heroService.findOne(req);
   }
 
-  @GrpcStreamMethod(Interfaces.HERO_SERVICE_NAME)
-  findMany(req$: Observable<Interfaces.HeroByIdReq>) {
+  @GrpcStreamMethod(Interfaces.heropb.HERO_SERVICE_NAME)
+  findMany(req$: Observable<Interfaces.heropb.HeroByIdReq>) {
     return this.heroService.findMany(req$);
   }
 }

@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Interfaces } from 'common-proto';
-import { HeroController } from 'controllers';
+import { BattleController } from 'controllers';
 import { join } from 'path';
+import { BattleService } from 'providers';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { join } from 'path';
       },
     ]),
   ],
-  controllers: [HeroController],
+  controllers: [BattleController],
+  providers: [BattleService],
 })
-export class HeroModule {}
+export class BattleModule {}

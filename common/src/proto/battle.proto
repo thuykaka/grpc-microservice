@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package battle;
+
+service BattleService {
+  rpc FindOne (FindBattleByIdReq) returns (FindBattleByIdRes);
+  rpc FindAll (EmptyReq) returns (FindAllBattleRes);
+  rpc CreateBattle (CreateBattleReq) returns(CreateBattleRes);
+}
+
+message FindBattleByIdReq {
+  int32 id = 1;
+}
+
+message FindBattleByIdRes {
+  int32 id = 1;
+  string name = 2;
+  repeated int32 heroIds = 3;
+  int32 winner = 4;
+}
+
+message EmptyReq {}
+
+message FindAllBattleRes {
+  repeated FindBattleByIdRes data = 1;
+}
+
+message CreateBattleReq {
+    int32 id = 1;
+    string name = 2;
+    repeated int32 heroIds = 3;
+}
+
+message CreateBattleRes {
+    int32 status = 1;
+    string error = 2;
+    int32 id = 3;
+}
